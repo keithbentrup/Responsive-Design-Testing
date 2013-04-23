@@ -1,6 +1,6 @@
-var defaultURL = 'mattkersley.com'; //<---- CHANGE TO YOUR WEBSITE URL
+var defaultURL = 'http://esi-dev-cert.gsiccorp.net:1080/gsi/webstore/WFS/TSS-TSSD1-Site/en_US/-/USD/Default-Start'; //<---- CHANGE TO YOUR WEBSITE URL
 
-//show loading graphic
+/* //show loading graphic
 function showLoader(id) {
   $('#' + id + ' img').fadeIn('slow');
 }
@@ -8,7 +8,7 @@ function showLoader(id) {
 //hdie loading graphic
 function hideLoader(id) {
   $('#' + id + ' img').fadeOut('slow');
-}
+} */
 
 //function to check load state of each frame
 function allLoaded(){
@@ -24,12 +24,13 @@ function loadPage($frame, url) {
   if ( url.substr(0,7) !== 'http://' && url.substr(0,8) !== 'https://' && url.substr(0, 7) !== 'file://' ) {
     url = 'http://'+url;
   }
-  $('iframe').not($frame).each(function(){showLoader($(this).parent().attr('id'));})
+  //$('iframe').not($frame).each(function(){showLoader($(this).parent().attr('id'));})
+  // is this to prevent recursive loading?
   $('iframe').not($frame).data('loaded', false);
   $('iframe').not($frame).attr('src', url);
 }
 
-$('.frame').each(function(){showLoader($(this).attr('id'))});
+//$('.frame').each(function(){showLoader($(this).attr('id'))});
 
 
 //when document loads
@@ -92,6 +93,23 @@ $(document).ready(function(){
     var $this = $(this);
     var url = '';
     var error = false;
+    var iframeWin = $this[0].contentWindow;
+    /*$(iframeWin).on('unload', function () {
+      //console.log(this.document.URL);
+
+      // remove all unload events that were attached on load
+      $('iframe').each(function () {
+        $($(this)[0].contentWindow).off('unload', myNotYetDefinedFunction);
+      });
+      
+      // watch for the actual change
+      var watcher = setInterval(function () {
+        if (iframeWin.document.URL != oldURL) {
+          clearInterval(watcher)
+          //set the src or load the other frames
+        }
+      }, 10);
+    }); */
 
     try{
       url = $this.contents().get(0).location.href;
@@ -112,12 +130,9 @@ $(document).ready(function(){
       }else{
         loadPage($this, url);
       }
-    }
-
-    //when frame loads, hide loader graphic
-    else{
+    } else{ //when frame loads, hide loader graphic
       error = false;
-      hideLoader($(this).parent().attr('id'));
+      //hideLoader($(this).parent().attr('id'));
       $(this).data('loaded',true);
     }
   });
